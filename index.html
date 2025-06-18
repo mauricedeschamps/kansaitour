@@ -2,8 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#dc3545">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="true">
     <title>Kansai Travel Guide</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛩️</text></svg>">
@@ -31,6 +35,11 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             transition: background-color 0.3s, color 0.3s;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            overflow-x: hidden;
         }
         
         header {
@@ -39,6 +48,7 @@
             padding: 1rem;
             text-align: center;
             position: relative;
+            -webkit-app-region: drag;
         }
         
         .controls {
@@ -47,6 +57,7 @@
             right: 1rem;
             display: flex;
             gap: 0.5rem;
+            -webkit-app-region: no-drag;
         }
         
         button {
@@ -57,6 +68,7 @@
             border-radius: 4px;
             cursor: pointer;
             font-size: 0.8rem;
+            -webkit-app-region: no-drag;
         }
         
         button:hover {
@@ -67,9 +79,10 @@
             padding: 1rem;
             max-width: 1200px;
             margin: 0 auto;
+            min-height: calc(100vh - 150px);
         }
         
-        h1, h2 {
+        h1, h2, h3 {
             margin-top: 0;
         }
         
@@ -142,6 +155,21 @@
             gap: 0.5rem;
         }
         
+        .official-link {
+            display: inline-block;
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+        
+        .official-link:hover {
+            opacity: 0.9;
+        }
+        
         footer {
             background-color: var(--card-bg);
             padding: 1rem;
@@ -163,6 +191,17 @@
                 position: static;
                 justify-content: center;
                 margin-top: 0.5rem;
+            }
+        }
+        
+        /* PWA fullscreen styles */
+        @media all and (display-mode: standalone) {
+            body {
+                padding-top: env(safe-area-inset-top);
+            }
+            
+            header {
+                padding-top: calc(1rem + env(safe-area-inset-top));
             }
         }
     </style>
@@ -194,6 +233,7 @@
             <div id="detail-access"></div>
             <h3 id="tips-title">Tips</h3>
             <div id="detail-tips"></div>
+            <a id="official-link" class="official-link" href="#" target="_blank" rel="noopener">Visit Official Site</a>
         </div>
     </main>
     
@@ -202,7 +242,7 @@
     </footer>
 
     <script>
-        // App data
+        // App data with official URLs
         const destinations = {
             en: [
                 {
@@ -212,7 +252,8 @@
                     description: 'Iconic temple with a wooden stage jutting out from the hillside, offering spectacular views of Kyoto. Particularly beautiful during cherry blossom and autumn foliage seasons.',
                     access: 'From Kyoto Station: Take bus #100 or #206 to Kiyomizu-michi stop (10-15 min), then 10 min walk uphill.',
                     tips: 'Visit early to avoid crowds. Try the Otowa Waterfall for its three streams each granting a different wish.',
-                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kiyomizudera.or.jp/en/'
                 },
                 {
                     id: 'fushimiinari',
@@ -221,7 +262,8 @@
                     description: 'Famous for its thousands of vermilion torii gates that lead up the mountain. Dedicated to Inari, the Shinto god of rice and prosperity.',
                     access: 'From Kyoto Station: Take JR Nara Line to Inari Station (5 min). The shrine is right outside the station.',
                     tips: 'Hike to the top for fewer crowds and great views. Visit at night for a mystical experience with illuminated gates.',
-                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://inari.jp/en/'
                 },
                 {
                     id: 'kinkakuji',
@@ -230,7 +272,8 @@
                     description: 'The Golden Pavilion, covered in gold leaf, reflects beautifully on the pond. A Zen temple that represents the extravagant Kitayama culture.',
                     access: 'From Kyoto Station: Take bus #101 or #205 to Kinkakuji-michi stop (40 min).',
                     tips: 'Morning light makes the gold shine brightest. The surrounding garden is equally impressive.',
-                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.shokoku-ji.jp/en/kinkakuji/'
                 },
                 {
                     id: 'arashiyama',
@@ -239,7 +282,8 @@
                     description: 'Famous for its bamboo grove and Togetsukyo Bridge. Offers beautiful scenery in every season - cherry blossoms, lush green, autumn colors, and snow.',
                     access: 'From Kyoto Station: Take JR Sagano Line to Saga-Arashiyama Station (15 min), then 10 min walk.',
                     tips: 'Rent a bicycle to explore the area. Visit the monkey park for great views over Kyoto.',
-                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.arashiyamago.com/'
                 },
                 {
                     id: 'byodoin',
@@ -248,7 +292,8 @@
                     description: 'The Phoenix Hall appears on the 10 yen coin. A stunning example of Heian-period architecture surrounded by a peaceful pond garden.',
                     access: 'From Kyoto Station: Take JR Nara Line to Uji Station (20 min), then 10 min walk.',
                     tips: 'The museum houses many national treasures. Matcha from Uji, one of Japan\'s best tea regions, is a must-try nearby.',
-                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.byodoin.or.jp/en/'
                 },
                 {
                     id: 'osakacastle',
@@ -257,7 +302,8 @@
                     description: 'Iconic castle built by Toyotomi Hideyoshi, with a museum inside showcasing Osaka\'s history. The surrounding park is beautiful during cherry blossom season.',
                     access: 'From Osaka Station: Take JR Loop Line to Osakajokoen Station (10 min), then 10 min walk.',
                     tips: 'Visit the top floor for panoramic views. The night illumination is spectacular.',
-                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.osakacastle.net/'
                 },
                 {
                     id: 'dotonbori',
@@ -266,7 +312,8 @@
                     description: 'Osaka\'s most famous entertainment district, known for its neon lights, extravagant signage, and delicious street food like takoyaki and okonomiyaki.',
                     access: 'From Osaka Station: Take Midosuji Line to Namba Station (10 min), then 5 min walk.',
                     tips: 'Try the crab at Kani Doraku. Visit at night when the signs light up. Don\'t miss the Glico running man sign.',
-                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.dotonbori.or.jp/'
                 },
                 {
                     id: 'shinsekai',
@@ -275,7 +322,8 @@
                     description: 'Retro-futuristic district developed in 1912 with Tsutenkaku Tower as its symbol. Famous for kushikatsu (deep-fried skewers) and nostalgic atmosphere.',
                     access: 'From Osaka Station: Take Midosuji Line to Dobutsuen-mae Station (15 min), then 5 min walk.',
                     tips: 'Try kushikatsu at one of the many restaurants (remember: no double-dipping!). Visit Spa World for an onsen experience.',
-                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.tsutenkaku.co.jp/'
                 },
                 {
                     id: 'narapark-todaiji',
@@ -284,7 +332,8 @@
                     description: 'Vast park with over 1,000 freely roaming sacred deer, home to Todai-ji Temple with its Great Buddha housed in the world\'s largest wooden building.',
                     access: 'From Kintetsu Nara Station: 5 min walk to Nara Park, 15 min more to Todai-ji. From JR Nara Station: Take bus to Todai-ji Daibutsuden stop.',
                     tips: 'Buy deer crackers to feed the deer (they bow for food!). Don\'t miss the hole in Todai-ji\'s pillar said to bring enlightenment to those who squeeze through.',
-                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.todaiji.or.jp/'
                 },
                 {
                     id: 'kasugataisha',
@@ -293,7 +342,8 @@
                     description: 'Famous for its thousands of stone and bronze lanterns donated by worshippers. The vermilion shrine buildings stand out beautifully against the forest.',
                     access: 'From Kintetsu Nara Station: 15 min walk through Nara Park. From JR Nara Station: Take bus to Kasuga Taisha Honden stop.',
                     tips: 'Visit during Lantern Festivals (early Feb and mid-Aug) when all lanterns are lit. The nearby primeval forest is a UNESCO site.',
-                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kasugataisha.or.jp/'
                 },
                 {
                     id: 'houryuji',
@@ -302,7 +352,8 @@
                     description: 'One of Japan\'s oldest temples, founded in 607 by Prince Shotoku. Contains the world\'s oldest surviving wooden structures and many national treasures.',
                     access: 'From JR Nara Station: Take JR Yamatoji Line to Horyuji Station (12 min), then 20 min walk or take bus.',
                     tips: 'Don\'t miss the octagonal Yumedono (Hall of Dreams). The museum houses incredible artifacts from the Asuka period.',
-                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.horyuji.or.jp/'
                 },
                 {
                     id: 'himejicastle',
@@ -311,7 +362,8 @@
                     description: 'Japan\'s most spectacular castle, known as the "White Heron Castle" for its elegant white appearance. A UNESCO World Heritage site with original 17th century structures.',
                     access: 'From Osaka Station: Take JR Special Rapid Service to Himeji Station (1 hour), then 15 min walk.',
                     tips: 'Visit in early April for cherry blossoms. The castle looks stunning against blue skies - check weather forecasts.',
-                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.himejicastle.jp/en/'
                 }
             ],
             ja: [
@@ -322,7 +374,8 @@
                     description: '崖に張り出した「清水の舞台」で知られる京都を代表する寺院。春の桜と秋の紅葉が特に美しい。',
                     access: '京都駅から：市バス100系統または206系統で「清水道」下車（10-15分）、徒歩10分。',
                     tips: '混雑を避けるなら早朝がおすすめ。音羽の滝の三筋の水はそれぞれ違うご利益があると言われています。',
-                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1526481280693-3bfa7568e0f3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kiyomizudera.or.jp/'
                 },
                 {
                     id: 'fushimiinari',
@@ -331,7 +384,8 @@
                     description: '千本鳥居で有名な稲荷神社。商売繁盛の神として信仰を集める。',
                     access: '京都駅から：JR奈良線で稲荷駅へ（5分）、駅すぐ。',
                     tips: '山頂まで登ると人が少なくなり良い眺め。夜のライトアップも神秘的。',
-                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1492571350019-22de08371fd3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://inari.jp/'
                 },
                 {
                     id: 'kinkakuji',
@@ -340,7 +394,8 @@
                     description: '金箔で覆われた舎利殿が池に映える美しい禅寺。北山文化を代表する建築。',
                     access: '京都駅から：市バス101系統または205系統で「金閣寺道」下車（40分）。',
                     tips: '午前中の光が金箔を最も輝かせます。庭園も必見。',
-                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1545566235-74a50f6b1d00?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.shokoku-ji.jp/kinkakuji/'
                 },
                 {
                     id: 'arashiyama',
@@ -349,7 +404,8 @@
                     description: '竹林の小径や渡月橋で知られる風光明媚なエリア。四季折々の風景が楽しめる。',
                     access: '京都駅から：JR嵯峨野線で嵯峨嵐山駅へ（15分）、徒歩10分。',
                     tips: 'レンタサイクルで周辺を探索するのがおすすめ。猿山からは京都が一望できます。',
-                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1523482580672-f109ba8cb9be?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.arashiyamago.com/'
                 },
                 {
                     id: 'byodoin',
@@ -358,7 +414,8 @@
                     description: '10円硬貨のデザインにもなっている鳳凰堂が有名。平安時代の優雅な建築と庭園。',
                     access: '京都駅から：JR奈良線で宇治駅へ（20分）、徒歩10分。',
                     tips: '博物館には国宝が多数展示。宇治抹茶もぜひ。',
-                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.byodoin.or.jp/'
                 },
                 {
                     id: 'osakacastle',
@@ -367,7 +424,8 @@
                     description: '豊臣秀吉が築いた大阪のシンボル。天守閣は博物館になっており、大阪の歴史を学べる。',
                     access: '大阪駅から：JR環状線で大阪城公園駅へ（10分）、徒歩10分。',
                     tips: '最上階からは大阪を一望。夜間のライトアップも見事。',
-                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1558862107-9dcbf9344ff1?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.osakacastle.net/'
                 },
                 {
                     id: 'dotonbori',
@@ -376,7 +434,8 @@
                     description: '大阪を代表する繁華街。派手な看板とたこ焼き、お好み焼きなどのB級グルメで有名。',
                     access: '大阪駅から：御堂筋線で難波駅へ（10分）、徒歩5分。',
                     tips: 'かに道楽のカニ料理がおすすめ。夜景も必見。グリコの看板は記念撮影スポット。',
-                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1528498033370-85cb5d6a51a9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.dotonbori.or.jp/'
                 },
                 {
                     id: 'shinsekai',
@@ -385,7 +444,8 @@
                     description: '通天閣を中心としたレトロなエリア。串カツやジャンジャン横丁で知られる。',
                     access: '大阪駅から：御堂筋線で動物園前駅へ（15分）、徒歩5分。',
                     tips: '串カツを食べる時は「二度漬け禁止」のルールを守って。スパワールドで温泉体験も。',
-                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1584622650111-993a426fbf0a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.tsutenkaku.co.jp/'
                 },
                 {
                     id: 'narapark-todaiji',
@@ -394,7 +454,8 @@
                     description: '1,000頭以上の鹿が自由に歩く広大な公園と、世界最大の木造建築である大仏殿を有する東大寺。',
                     access: '近鉄奈良駅から：徒歩5分で奈良公園、さらに徒歩15分で東大寺。JR奈良駅から：バスで「大仏殿前」下車。',
                     tips: '鹿せんべいを買って鹿にあげてみよう（鹿もおじぎを返してくれるかも）。東大寺の柱の穴（大仏の鼻の穴と同じ大きさ）をくぐるとご利益があると言われています。',
-                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.todaiji.or.jp/'
                 },
                 {
                     id: 'kasugataisha',
@@ -403,7 +464,8 @@
                     description: '3,000基以上の灯籠が並ぶ神秘的な神社。朱塗りの社殿が美しい。',
                     access: '近鉄奈良駅から：奈良公園を徒歩15分。JR奈良駅から：バスで「春日大社本殿」下車。',
                     tips: '灯籠祭り（2月初旬と8月中旬）は全ての灯籠に火が灯され幻想的。原生林は世界遺産。',
-                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1575425186775-b6de55b7a48a?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.kasugataisha.or.jp/'
                 },
                 {
                     id: 'houryuji',
@@ -412,7 +474,8 @@
                     description: '聖徳太子が建立した世界最古の木造建築群を有する寺院。飛鳥時代の貴重な文化財が多数。',
                     access: 'JR奈良駅から：JR大和路線で法隆寺駅へ（12分）、徒歩20分またはバス。',
                     tips: '八角形の夢殿は必見。宝物館には飛鳥時代の貴重な文化財が展示されています。',
-                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1580077873521-dc86339ef022?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.horyuji.or.jp/'
                 },
                 {
                     id: 'himejicastle',
@@ -421,7 +484,8 @@
                     description: '白鷺城の愛称で親しまれる日本で最も美しい城。天守閣をはじめ多くの建築物が国宝に指定されている。',
                     access: '大阪駅から：JR新快速で姫路駅へ（1時間）、徒歩15分。',
                     tips: '桜の季節（4月上旬）が特に美しい。青空を背景にした白亜の城は絶景。天気予報を確認して訪問するのがおすすめ。',
-                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80'
+                    image: 'https://images.unsplash.com/photo-1528164344705-47542687000d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1000&q=80',
+                    officialUrl: 'https://www.city.himeji.lg.jp/castle/'
                 }
             ]
         };
@@ -446,6 +510,7 @@
         const detailImage = document.getElementById('detail-image');
         const detailAccess = document.getElementById('detail-access');
         const detailTips = document.getElementById('detail-tips');
+        const officialLink = document.getElementById('official-link');
         const accessTitle = document.getElementById('access-title');
         const tipsTitle = document.getElementById('tips-title');
         const contactLink = document.getElementById('contact-link');
@@ -456,16 +521,17 @@
             setupEventListeners();
             updateUI();
             
-            // Register service worker for PWA
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('sw.js').then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    }).catch(err => {
-                        console.log('ServiceWorker registration failed: ', err);
-                    });
-                });
-            }
+            // Hide address bar in PWA mode
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    window.scrollTo(0, 1);
+                }, 0);
+            });
+            
+            // Prevent default touch behavior
+            document.addEventListener('touchmove', (e) => {
+                if (e.scale !== 1) { e.preventDefault(); }
+            }, { passive: false });
         }
 
         // Set up event listeners
@@ -505,6 +571,10 @@
             detailImage.alt = destination.title;
             detailAccess.textContent = destination.access;
             detailTips.textContent = destination.tips;
+            officialLink.href = destination.officialUrl;
+            
+            // Update link text based on language
+            officialLink.textContent = currentLanguage === 'en' ? 'Visit Official Site' : '公式サイトへ';
             
             currentPage = 'detail';
             updateUI();
