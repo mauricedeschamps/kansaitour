@@ -163,6 +163,12 @@
             margin-bottom: 1rem;
         }
         
+        .detail-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+        
         .back-button {
             background-color: var(--accent-color);
             color: white;
@@ -170,7 +176,18 @@
             padding: 0.5rem 1rem;
             border-radius: 4px;
             cursor: pointer;
-            margin-bottom: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-language-toggle {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
@@ -274,6 +291,11 @@
             .app-subtitle {
                 font-size: 0.9rem;
             }
+            
+            .detail-controls {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
         }
     </style>
 </head>
@@ -312,7 +334,10 @@
         </div>
         
         <div id="detail-page" class="detail-page">
-            <button class="back-button" id="back-button">← Back</button>
+            <div class="detail-controls">
+                <button class="back-button" id="back-button">← Back</button>
+                <button class="detail-language-toggle" id="detail-language-toggle">🇯🇵 日本語</button>
+            </div>
             <img id="detail-image" src="" alt="">
             <h2 id="detail-title"></h2>
             <div class="location" id="detail-location"></div>
@@ -630,6 +655,7 @@
         let currentLanguage = 'en';
         let darkMode = true;
         let currentPage = 'home';
+        let currentDestinationId = null;
 
         // DOM elements
         const homePage = document.getElementById('home-page');
@@ -637,6 +663,7 @@
         const backButton = document.getElementById('back-button');
         const themeToggle = document.getElementById('theme-toggle');
         const languageToggle = document.getElementById('language-toggle');
+        const detailLanguageToggle = document.getElementById('detail-language-toggle');
         const destinationsGrid = document.getElementById('destinations-grid');
         const appTitle = document.getElementById('app-title');
         const appSubtitle = document.getElementById('app-subtitle');
@@ -677,6 +704,7 @@
         function setupEventListeners() {
             themeToggle.addEventListener('click', toggleTheme);
             languageToggle.addEventListener('click', toggleLanguage);
+            detailLanguageToggle.addEventListener('click', toggleDetailLanguage);
             backButton.addEventListener('click', goBack);
             
             // Railway map click handlers
@@ -711,7 +739,15 @@
 
         // Show detail page for a destination
         function showDetail(id) {
-            const destination = destinations[currentLanguage].find(d => d.id === id);
+            currentDestinationId = id;
+            updateDetailContent();
+            currentPage = 'detail';
+            updateUI();
+        }
+
+        // Update detail content based on current language
+        function updateDetailContent() {
+            const destination = destinations[currentLanguage].find(d => d.id === currentDestinationId);
             if (!destination) return;
             
             detailTitle.textContent = destination.title;
@@ -725,9 +761,6 @@
             
             // Update link text based on language
             officialLink.textContent = currentLanguage === 'en' ? 'Visit Official Site' : '公式サイトへ';
-            
-            currentPage = 'detail';
-            updateUI();
         }
 
         // Go back to home page
@@ -742,10 +775,17 @@
             updateUI();
         }
 
-        // Toggle between English and Japanese
+        // Toggle between English and Japanese on home page
         function toggleLanguage() {
             currentLanguage = currentLanguage === 'en' ? 'ja' : 'en';
             renderDestinations();
+            updateUI();
+        }
+
+        // Toggle between English and Japanese on detail page
+        function toggleDetailLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'ja' : 'en';
+            updateDetailContent();
             updateUI();
         }
 
@@ -769,13 +809,16 @@
             if (darkMode) {
                 document.body.classList.remove('light-mode');
                 themeToggle.textContent = currentLanguage === 'en' ? '🌙 Dark Mode' : '🌙 ダークモード';
+                detailLanguageToggle.style.backgroundColor = 'rgba(255, 255, 255, 0.2)';
             } else {
                 document.body.classList.add('light-mode');
                 themeToggle.textContent = currentLanguage === 'en' ? '☀️ Light Mode' : '☀️ ライトモード';
+                detailLanguageToggle.style.backgroundColor = 'rgba(0, 0, 0, 0.1)';
             }
             
             // Set language toggle text
             languageToggle.textContent = currentLanguage === 'en' ? '🇯🇵 日本語' : '🇬🇧 English';
+            detailLanguageToggle.textContent = currentLanguage === 'en' ? '🇯🇵 日本語' : '🇬🇧 English';
             
             // Update page visibility
             homePage.style.display = currentPage === 'home' ? 'block' : 'none';
